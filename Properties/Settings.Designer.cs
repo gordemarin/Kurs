@@ -33,5 +33,16 @@ namespace pr1.Properties {
                 return ((string)(this["ServiceCenterConnectionString"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.ConnectionString)]
+        [global::System.Configuration.DefaultSettingValueAttribute("Data Source=DESKTOP-JSPDFF8\\MSSQLSERVER1;Initial Catalog=ServiceCenter1;Integrate" +
+            "d Security=True;TrustServerCertificate=True")]
+        public string ServiceCenter1ConnectionString {
+            get {
+                return ((string)(this["ServiceCenter1ConnectionString"]));
+            }
+        }
     }
 }

@@ -46,14 +46,17 @@ namespace ServiceCenter
             using (var context = new ApplicationDbContext())
             {
                 var requests = context.Requests
-                    .Include(r => r.Equipment)
+                    .Include(r => r.Clients)
                     .Select(r => new
                     {
                         r.RequestID,
-                        EquipmentName = r.Equipment.Name,
+                        r.Clients.ClientName,
+                        r.DeviceName,
                         r.Description,
                         r.Status,
-                        r.RequestDate
+                        r.RequestDate,
+                        r.Phone
+                        
                     }).ToList();
 
                 RequestsDataGrid.ItemsSource = requests;
@@ -113,5 +116,9 @@ namespace ServiceCenter
             }
         }
 
+        private void RequestsDataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+
+        }
     }
 }

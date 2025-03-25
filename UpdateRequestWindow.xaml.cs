@@ -25,7 +25,7 @@ namespace ServiceCenter
         public UpdateRequestWindow(int requestId)
         {
             InitializeComponent();
-            RequestID = requestId;
+            RequestID = requestId;  
 
             LoadRequestData();
         }
@@ -34,15 +34,25 @@ namespace ServiceCenter
         {
             using (var context = new ApplicationDbContext())
             {
-                var request = context.Requests.Include(r => r.Equipment).FirstOrDefault(r => r.RequestID == RequestID);
+                var request = context.Requests
+                    .Include(r => r.Clients) // Загружаем связанного клиента
+                    .FirstOrDefault(r => r.RequestID == RequestID);
 
                 if (request != null)
                 {
-                    EquipmentTextBox.Text = request.Equipment.Name; // Отображаем название оборудования
+                    DeviceTextBox.Text = request.DeviceName; // Отображаем название устройства
+
                     DescriptionTextBox.Text = request.Description;  // Загружаем текущее описание
                     StatusComboBox.SelectedItem = StatusComboBox.Items
                         .Cast<ComboBoxItem>()
                         .FirstOrDefault(item => (string)item.Content == request.Status); // Устанавливаем текущий статус
+                    NumberPhone.Text = request.Phone;
+
+                    // Отображаем имя клиента
+                    if (request.Clients != null)
+                    {
+                        EquipmentTextBox.Text = request.Clients.ClientName;
+                    }
                 }
                 else
                 {
@@ -62,13 +72,22 @@ namespace ServiceCenter
 
             using (var context = new ApplicationDbContext())
             {
-                var request = context.Requests.FirstOrDefault(r => r.RequestID == RequestID);
+                var request = context.Requests
+                    .Include(r => r.Clients) // Загружаем связанного клиента
+                    .FirstOrDefault(r => r.RequestID == RequestID);
 
                 if (request != null)
                 {
                     request.Description = DescriptionTextBox.Text;
                     request.Status = (string)((ComboBoxItem)StatusComboBox.SelectedItem).Content;                   
-
+                    request.Phone = NumberPhone.Text;
+                    
+                    // Обновляем имя клиента
+                    if (request.Clients != null && !string.IsNullOrWhiteSpace(EquipmentTextBox.Text))
+                    {
+                        request.Clients.ClientName = EquipmentTextBox.Text;
+                    }
+                    
                     context.SaveChanges();
                     DialogResult = true; // Закрыть окно и вернуть управление
                 }

@@ -19,23 +19,14 @@ namespace ServiceCenter
         public AddRequestWindow()
         {
             InitializeComponent();
-            LoadEquipment();
+            
         }
 
-        private void LoadEquipment()
-        {
-            using (var context = new ApplicationDbContext())
-            {
-                var equipmentList = context.Equipment.Select(e => new { e.EquipmentID, e.Name }).ToList();
-                EquipmentComboBox.ItemsSource = equipmentList;
-                EquipmentComboBox.DisplayMemberPath = "Name";
-                EquipmentComboBox.SelectedValuePath = "EquipmentID";
-            }
-        }
+
 
         private void SaveButton_Click(object sender, RoutedEventArgs e)
         {
-            if (EquipmentComboBox.SelectedValue is null || string.IsNullOrWhiteSpace(DescriptionTextBox.Text))
+            if (EquipmentComboBox is null || string.IsNullOrWhiteSpace(DescriptionTextBox.Text))
             {
                 MessageBox.Show("Пожалуйста, заполните все поля.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
@@ -43,12 +34,43 @@ namespace ServiceCenter
 
             using (var context = new ApplicationDbContext())
             {
+                // Получаем номер телефона из поля ввода
+                string Phone = NumberPhoneTextBox.Text;
+                
+                // Ищем клиента с указанным номером телефона
+                var client = context.Clients.FirstOrDefault(c => c.phone == Phone);
+                
+                int clientId;
+                
+                if (client != null)
+                {
+                    // Если клиент найден, используем его ID
+                    clientId = client.ClientID;
+                }
+                else
+                {
+                    // Если клиент не найден, создаем нового клиента
+                    var newClient = new Clients
+                    {
+                        ClientName = EquipmentComboBox.Text, // Можно добавить поле для ввода имени клиента
+                        phone = Phone
+                    };
+                    
+                    context.Clients.Add(newClient);
+                    context.SaveChanges();
+                    
+                    clientId = newClient.ClientID;
+                }
+                
                 var newRequest = new Request
                 {
-                    EquipmentID = (int)EquipmentComboBox.SelectedValue,
+                    
+                    DeviceName = DeviceComboBox.Text,
                     Description = DescriptionTextBox.Text,
                     Status = "Новая",
-                    RequestDate = DateTime.Now
+                    RequestDate = DateTime.Now,
+                    Phone = Phone,
+                    ClientID = clientId // Используем ID найденного или созданного клиента
                 };
 
                 context.Requests.Add(newRequest);

@@ -16,6 +16,8 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Microsoft.EntityFrameworkCore;
 using BCrypt.Net;
+using Azure.Identity;
+using System.ComponentModel.DataAnnotations;
 
 namespace ServiceCenter
 {
@@ -36,11 +38,15 @@ namespace ServiceCenter
 
             using (var context = new ApplicationDbContext())
             {
+                var requests = context.Users
+                .Include(r => r.Employees) // Загружаем связанные данные клиента
+                .ToList();
+
                 var user = context.Users.FirstOrDefault(u => u.Username == username);
 
                 if (user != null && BCrypt.Net.BCrypt.Verify(password, user.PasswordHash))
                 {
-                    MainWindow mainWindow = new MainWindow(user.Role); // Передаем роль
+                    MainWindow mainWindow = new MainWindow(user.Employees.Role); // Передаем роль
                     mainWindow.Show();
                     this.Close();
                 }
@@ -54,48 +60,73 @@ namespace ServiceCenter
 
 }
 
-    public class User
+    public class Users
     {
-        public int UserID { get; set; }
+    [Key]
+    public int UserID { get; set; }
         public string Username { get; set; }
         public string PasswordHash { get; set; }
-        public string Role { get; set; }
+        public Employees Employees { get; set; }
+        public int? EmployeeID { get; set; }
     }
 
-    public class Equipment
-    {
-        public int EquipmentID { get; set; }
-        public string Name { get; set; }
-    }
+public class Employees
+{
+    [Key]
+    public int EmployeeID { get; set; }
+    public string name { get; set; }
+    public string Role { get; set; }
+    public Users Users { get; set; }
+}
+
+   public class Clients
+{
+    [Key]
+    public int ClientID  { get; set; }
+    public string ClientName { get; set; }
+    public string phone { get; set; }
+    public ICollection<Request> Requests { get; set; } // навигационное свойство
+}
 
     public class Request
     {
-        public int RequestID { get; set; }
-        public int EquipmentID { get; set; }
+    [Key]
+    public int RequestID { get; set; }
+        public string DeviceName { get; set; }
         public string Description { get; set; }
         public string Status { get; set; }
         public DateTime RequestDate { get; set; }
+        public Clients Clients { get; set; }
+        public string Phone { get; set; }
+        public int ClientID { get; set; }
 
-        public virtual Equipment Equipment { get; set; }
-    }
+        
+}
 
     public class ApplicationDbContext : DbContext
     {
-        public DbSet<User> Users { get; set; }
-        public DbSet<Equipment> Equipment { get; set; }
+        public DbSet<Users> Users { get; set; }
+        public DbSet<Clients> Clients { get; set; }
         public DbSet<Request> Requests { get; set; }
+        public DbSet<Employees> Employees { get; set; }
+
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer(@"Data Source=DESKTOP-JSPDFF8\MSSQLSERVER1;Initial Catalog=ServiceCenter;Integrated Security=True;Trust Server Certificate=True");
+            optionsBuilder.UseSqlServer(@"Data Source=DESKTOP-JSPDFF8\MSSQLSERVER1;Initial Catalog=ServiceCenter1;Integrated Security=True;Trust Server Certificate=True");
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Request>()
-                .HasOne(r => r.Equipment)
-                .WithMany()
-                .HasForeignKey(r => r.EquipmentID);
+        modelBuilder.Entity<Request>()
+        .HasOne(r => r.Clients)    // У Request есть один Client
+        .WithMany(c => c.Requests) // У Client много Requests
+        .HasForeignKey(r => r.ClientID); // Внешний ключ в Request
+
+        modelBuilder.Entity<Users>()
+            .HasOne(u => u.Employees)      // У User есть один Employee
+            .WithOne(e => e.Users)         // У Employee есть один User
+            .HasForeignKey<Users>(u => u.EmployeeID);
         }
-    }
+}
 
