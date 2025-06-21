@@ -45,13 +45,16 @@
                            Margin="0,0,0,5"/>
                 <PasswordBox x:Name="PasswordBox" 
                              Margin="0,0,0,20"/>
-                <Button Content="ВОЙТИ" 
-                        Click="LoginButton_Click" 
-                        Width="180" 
-                        Height="30"
-                        />
 
                 <!-- Кнопка входа -->
+            </StackPanel>
+        </Border>
+
+        <!-- Нижняя панель с кнопками -->
+        <Border Background="White" Margin="20,369,20,34">
+            <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Button Content="ВОЙТИ" Click="LoginButton_Click" Width="200" Margin="0,0,0,10"/>
+                <Button Content="РЕГИСТРАЦИЯ" Click="RegisterButton_Click" Width="200" Background="Gray"/>
             </StackPanel>
         </Border>
     </Grid>

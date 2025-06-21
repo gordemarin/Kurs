@@ -35,9 +35,11 @@ namespace ServiceCenter
 
             LoadRequests();
 
-            if (UserRole != "Администратор")
+            if (UserRole == "Сотрудник")
             {
-                // Ограничиваем доступ к административным функциям
+                // Ограничиваем доступ для обычных сотрудников
+                UpdateButton.Visibility = Visibility.Collapsed;
+                DeleteButton.Visibility = Visibility.Collapsed;
             }
         }
 
@@ -45,23 +47,11 @@ namespace ServiceCenter
         {
             using (var context = new ApplicationDbContext())
             {
-                var requests = context.Requests
-                    .Include(r => r.Clients)
-                    .Select(r => new
-                    {
-                        r.RequestID,
-                        r.Clients.ClientName,
-                        r.DeviceName,
-                        r.Description,
-                        r.Status,
-                        r.RequestDate,
-                        r.Phone
-                        
-                    }).ToList();
-
+                var requests = context.GetRequestsFullInfo().ToList();
                 RequestsDataGrid.ItemsSource = requests;
             }
         }
+
         private void AddRequest_Click(object sender, RoutedEventArgs e)
         {
             var addRequestWindow = new AddRequestWindow(); // Открываем окно добавления заявки
@@ -75,8 +65,8 @@ namespace ServiceCenter
         {
             if (RequestsDataGrid.SelectedItem != null)
             {
-                var selectedRequest = (dynamic)RequestsDataGrid.SelectedItem; // Динамическое приведение
-                var updateRequestWindow = new UpdateRequestWindow(selectedRequest.RequestID);
+                var selectedRequest = (RequestFullInfo)RequestsDataGrid.SelectedItem;
+                var updateRequestWindow = new UpdateRequestWindow(selectedRequest.RequestID, UserRole); // Передаем роль
                 if (updateRequestWindow.ShowDialog() == true)
                 {
                     LoadRequests(); // Обновляем данные после изменения
@@ -92,7 +82,7 @@ namespace ServiceCenter
         {
             if (RequestsDataGrid.SelectedItem != null)
             {
-                var selectedRequest = (dynamic)RequestsDataGrid.SelectedItem;
+                var selectedRequest = (RequestFullInfo)RequestsDataGrid.SelectedItem; // Используем новый тип
 
                 var result = MessageBox.Show($"Вы уверены, что хотите удалить заявку ID {selectedRequest.RequestID}?",
                                              "Подтверждение", MessageBoxButton.YesNo, MessageBoxImage.Question);

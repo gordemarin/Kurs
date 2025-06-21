@@ -20,14 +20,32 @@ namespace ServiceCenter
     /// </summary>
     public partial class UpdateRequestWindow : Window
     {
-        private int RequestID;
+        private int _requestId;
+        private string _userRole;
 
-        public UpdateRequestWindow(int requestId)
+        public UpdateRequestWindow(int requestId, string role)
         {
             InitializeComponent();
-            RequestID = requestId;  
+            _requestId = requestId;
+            _userRole = role;
 
             LoadRequestData();
+            ApplyAccessControl();
+        }
+
+        private void ApplyAccessControl()
+        {
+            // Администраторы и менеджеры могут редактировать все ключевые поля
+            bool canEdit = (_userRole == "Администратор" || _userRole == "Менеджер");
+
+            StatusComboBox.IsEnabled = canEdit;
+            DeviceNameTextBox.IsEnabled = canEdit;
+
+            // Описание и данные клиента может редактировать любой, кто открыл окно
+            DescriptionTextBox.IsEnabled = true; 
+            FirstNameTextBox.IsEnabled = true;
+            LastNameTextBox.IsEnabled = true;
+            PhoneTextBox.IsEnabled = true;
         }
 
         private void LoadRequestData()
@@ -35,24 +53,24 @@ namespace ServiceCenter
             using (var context = new ApplicationDbContext())
             {
                 var request = context.Requests
-                    .Include(r => r.Clients) // Загружаем связанного клиента
-                    .FirstOrDefault(r => r.RequestID == RequestID);
+                    .Include(r => r.Client)
+                    .Include(r => r.Status)
+                    .FirstOrDefault(r => r.RequestID == _requestId);
 
                 if (request != null)
                 {
-                    DeviceTextBox.Text = request.DeviceName; // Отображаем название устройства
-
-                    DescriptionTextBox.Text = request.Description;  // Загружаем текущее описание
-                    StatusComboBox.SelectedItem = StatusComboBox.Items
-                        .Cast<ComboBoxItem>()
-                        .FirstOrDefault(item => (string)item.Content == request.Status); // Устанавливаем текущий статус
-                    NumberPhone.Text = request.Phone;
-
-                    // Отображаем имя клиента
-                    if (request.Clients != null)
-                    {
-                        EquipmentTextBox.Text = request.Clients.ClientName;
-                    }
+                    DeviceNameTextBox.Text = request.DeviceName;
+                    DescriptionTextBox.Text = request.Description;
+                    PhoneTextBox.Text = request.Client.Phone;
+                    FirstNameTextBox.Text = request.Client.FirstName;
+                    LastNameTextBox.Text = request.Client.LastName;
+                    
+                    // Загрузить статусы в ComboBox
+                    var statuses = context.RequestStatuses.ToList();
+                    StatusComboBox.ItemsSource = statuses;
+                    StatusComboBox.DisplayMemberPath = "StatusName";
+                    StatusComboBox.SelectedValuePath = "StatusID";
+                    StatusComboBox.SelectedValue = request.StatusID;
                 }
                 else
                 {
@@ -66,26 +84,26 @@ namespace ServiceCenter
         {
             if (string.IsNullOrWhiteSpace(DescriptionTextBox.Text) || StatusComboBox.SelectedItem is null)
             {
-                MessageBox.Show("Пожалуйста, заполните все поля.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("Пожалуйста, заполните все обязательные поля.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
             using (var context = new ApplicationDbContext())
             {
-                var request = context.Requests
-                    .Include(r => r.Clients) // Загружаем связанного клиента
-                    .FirstOrDefault(r => r.RequestID == RequestID);
-
+                var request = context.Requests.Find(_requestId);
                 if (request != null)
                 {
+                    request.DeviceName = DeviceNameTextBox.Text;
                     request.Description = DescriptionTextBox.Text;
-                    request.Status = (string)((ComboBoxItem)StatusComboBox.SelectedItem).Content;                   
-                    request.Phone = NumberPhone.Text;
+                    request.StatusID = (int)StatusComboBox.SelectedValue;
                     
-                    // Обновляем имя клиента
-                    if (request.Clients != null && !string.IsNullOrWhiteSpace(EquipmentTextBox.Text))
+                    // Обновить данные клиента
+                    var client = context.Clients.Find(request.ClientID);
+                    if (client != null)
                     {
-                        request.Clients.ClientName = EquipmentTextBox.Text;
+                        client.FirstName = FirstNameTextBox.Text;
+                        client.LastName = LastNameTextBox.Text;
+                        client.Phone = PhoneTextBox.Text;
                     }
                     
                     context.SaveChanges();

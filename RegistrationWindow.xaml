@@ -1,0 +1,51 @@
+﻿<Window x:Class="ServiceCenter.RegistrationWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Регистрация нового пользователя" Height="600" Width="450"
+        WindowStartupLocation="CenterScreen">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="60"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="70"/>
+        </Grid.RowDefinitions>
+
+        <!-- Верхняя панель -->
+        <Border Grid.Row="0" Background="{StaticResource PrimaryColor}">
+            <TextBlock Text="РЕГИСТРАЦИЯ" 
+                       Foreground="White" 
+                       FontSize="18" 
+                       FontWeight="SemiBold" 
+                       VerticalAlignment="Center" 
+                       HorizontalAlignment="Center"/>
+        </Border>
+
+        <!-- Основной контент -->
+        <Border Grid.Row="1" Background="White" Margin="20,20,20,10" Padding="20" CornerRadius="3">
+            <StackPanel>
+                <TextBlock Text="ИМЯ" FontWeight="SemiBold" Foreground="{StaticResource PrimaryColor}"/>
+                <TextBox x:Name="FirstNameTextBox" Margin="0,5,0,10"/>
+
+                <TextBlock Text="ФАМИЛИЯ" FontWeight="SemiBold" Foreground="{StaticResource PrimaryColor}"/>
+                <TextBox x:Name="LastNameTextBox" Margin="0,5,0,10"/>
+
+                <TextBlock Text="ИМЯ ПОЛЬЗОВАТЕЛЯ (ЛОГИН)" FontWeight="SemiBold" Foreground="{StaticResource PrimaryColor}"/>
+                <TextBox x:Name="UsernameTextBox" Margin="0,5,0,10"/>
+
+                <TextBlock Text="ПАРОЛЬ" FontWeight="SemiBold" Foreground="{StaticResource PrimaryColor}"/>
+                <PasswordBox x:Name="PasswordBox" Margin="0,5,0,10"/>
+
+                <TextBlock Text="ПОДТВЕРДИТЕ ПАРОЛЬ" FontWeight="SemiBold" Foreground="{StaticResource PrimaryColor}"/>
+                <PasswordBox x:Name="ConfirmPasswordBox" Margin="0,5,0,15"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Нижняя панель с кнопками -->
+        <Border Grid.Row="2" Background="White" Margin="20,0,20,20">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                <Button Content="ЗАРЕГИСТРИРОВАТЬСЯ" Click="RegisterButton_Click" Width="180" Margin="0,0,10,0"/>
+                <Button Content="НАЗАД" Click="BackButton_Click" Width="120" IsCancel="True"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Window>
