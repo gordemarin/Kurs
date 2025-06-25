@@ -38,7 +38,7 @@
                            FontWeight="SemiBold"/>
                 <TextBox x:Name="PhoneTextBox" Margin="0,5,0,15"/>
                 
-                <TextBlock Text="ОБОРУДОВАНИЕ" 
+                <TextBlock Text="ИМЯ ЗАКАЗА" 
                            Foreground="{StaticResource PrimaryColor}" 
                            FontWeight="SemiBold"/>
                 <TextBox x:Name="DeviceNameTextBox" Margin="0,5,0,15"/>

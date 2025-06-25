@@ -4,14 +4,18 @@
         Title="Сервисный центр - Заявки" Height="600" Width="1024" 
         WindowStartupLocation="CenterScreen">
     <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="19*"/>
+            <ColumnDefinition Width="109*"/>
+        </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="60"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="70"/>
         </Grid.RowDefinitions>
-        
+
         <!-- Верхняя панель -->
-        <Border Grid.Row="0" Background="{StaticResource PrimaryColor}">
+        <Border Grid.Row="0" Background="{StaticResource PrimaryColor}" Grid.ColumnSpan="2">
             <Grid>
                 <TextBlock Text="СЕРВИСНЫЙ ЦЕНТР" 
                            Foreground="White" 
@@ -25,13 +29,13 @@
         <!-- Основной контент -->
         <DataGrid x:Name="RequestsDataGrid" 
                   Grid.Row="1" 
-                  Margin="20" 
+                  Margin="20,20,20,20" 
                   SelectionMode="Single"
                   IsReadOnly="True"
                   AutoGenerateColumns="False"
                   HeadersVisibility="Column"
                   ColumnHeaderHeight="30"
-                  SelectionChanged="RequestsDataGrid_SelectionChanged">
+                  SelectionChanged="RequestsDataGrid_SelectionChanged" Grid.ColumnSpan="2">
             <DataGrid.ColumnHeaderStyle>
                 <Style TargetType="DataGridColumnHeader">
                     <Setter Property="Background" Value="{StaticResource PrimaryColor}" />
@@ -70,7 +74,7 @@
                         </Style>
                     </DataGridTextColumn.ElementStyle>
                 </DataGridTextColumn>
-                <DataGridTextColumn Header="ОБОРУДОВАНИЕ" Binding="{Binding DeviceName}" Width="160">
+                <DataGridTextColumn Header="ИМЯ ЗАКАЗА" Binding="{Binding DeviceName}" Width="160">
                     <DataGridTextColumn.ElementStyle>
                         <Style TargetType="TextBlock">
                             <Setter Property="HorizontalAlignment" Value="Left"/>
@@ -117,9 +121,9 @@
                 </DataGridTextColumn>
             </DataGrid.Columns>
         </DataGrid>
-       
+
         <!-- Нижняя панель с кнопками -->
-        <Border Grid.Row="2" Background="White">
+        <Border Grid.Row="1" Background="White" Grid.ColumnSpan="2" Margin="0,454,0,0" Grid.RowSpan="2">
             <StackPanel Orientation="Horizontal" 
                         HorizontalAlignment="Center" 
                         Height="50"

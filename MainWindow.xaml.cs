@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Identity.Client;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -37,9 +38,13 @@ namespace ServiceCenter
 
             if (UserRole == "Сотрудник")
             {
+                var content = "ДОБАВИТЬ ЗАКАЗ";  
+
                 // Ограничиваем доступ для обычных сотрудников
                 UpdateButton.Visibility = Visibility.Collapsed;
                 DeleteButton.Visibility = Visibility.Collapsed;
+                AddButton.Content = content;
+                AddButton.Width = 250;
             }
         }
 
@@ -105,7 +110,7 @@ namespace ServiceCenter
                 MessageBox.Show("Выберите заявку для удаления.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         }
-
+        
         private void RequestsDataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
 
